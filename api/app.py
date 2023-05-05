@@ -1,14 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.middlewares.errors import ErrorsMiddleware
 from api.routers.v1.hello import router as hello_router_v1
 from api.routers.v1.places import router as places_router_v1
 from settings import app_settings
 
 
 def setup_middlewares(app: FastAPI) -> None:
-    app.add_middleware(ErrorsMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=['*'],
