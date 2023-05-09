@@ -1,13 +1,48 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException, Path, status
+
+from api.depends import get_places_service
+from api.routers.v1.models import AddPlace, AddPlaceResponse, GetPlace, GetPlaces
+from src.services.places import PlacesServices
 
 router = APIRouter(prefix='/api/v1', tags=['places'])
 
 
 @router.get('/places')
-async def get_places() -> None:
-    pass
+async def get_places(
+        limit: int,
+        offset: int,
+        source: str | None = None,
+        places_service: PlacesServices = Depends(get_places_service)
+) -> GetPlaces:
+    places = await places_service.get_places(
+        limit=limit,
+        offset=offset,
+        source=source
+    )
+    return places
 
 
-@router.post('/places')
-async def add_place() -> None:
-    pass
+@router.post(
+    '/places',
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_place(
+    place: AddPlace,
+    places_service: PlacesServices = Depends(get_places_service)
+) -> AddPlaceResponse:
+    await places_service.add_place(place=place)
+    return AddPlaceResponse(message='ok')
+
+
+@router.get(
+    '/places/{place_id}',
+    response_model=GetPlace
+)
+async def get_place(
+    place_id: int = Path(...),
+    places_service: PlacesServices = Depends(get_places_service)
+) -> GetPlace:
+    place = await places_service.get_place(place_id=place_id)
+    if not place:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='place not found')
+    return place
