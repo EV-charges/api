@@ -1,9 +1,9 @@
+import asyncpg
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routers.v1.hello import router as hello_router_v1
 from api.routers.v1.places import router as places_router_v1
-from settings import app_settings
+from settings import PostgresSettings, app_settings
 
 
 def setup_middlewares(app: FastAPI) -> None:
@@ -16,6 +16,12 @@ def setup_middlewares(app: FastAPI) -> None:
     )
 
 
+async def setup_pg_pool(app: FastAPI) -> None:
+    pg_settings = PostgresSettings()
+    pool = await asyncpg.create_pool(dsn=pg_settings.url)
+    app.state.pool = pool
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title=app_settings.TITLE,
@@ -23,7 +29,14 @@ def create_app() -> FastAPI:
     )
     setup_middlewares(app)
 
-    app.include_router(hello_router_v1)
+    @app.on_event('startup')
+    async def startup() -> None:
+        await setup_pg_pool(app)
+
+    @app.on_event('shutdown')
+    async def shutdown() -> None:
+        await app.state.pool.close()
+
     app.include_router(places_router_v1)
 
     return app
