@@ -1,13 +1,12 @@
 CREATE TABLE IF NOT EXISTS places (
     id SERIAL PRIMARY KEY,
-    lat NUMERIC(9,7) NOT NULL,
-    lon NUMERIC(9,7) NOT NULL,
+    location geography(POINT),
     name VARCHAR(100) NOT NULL,
     city VARCHAR(30),
     street VARCHAR(70)
 );
 
-CREATE TABLE IF NOT EXISTS id_stations (
+CREATE TABLE IF NOT EXISTS places_sources (
     id SERIAL PRIMARY KEY,
     place_id INTEGER NOT NULL,
     inner_id INTEGER NOT NULL,
