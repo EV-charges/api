@@ -30,8 +30,8 @@ async def add_place(
     place: AddPlace,
     places_service: PlacesServices = Depends(get_places_service)
 ) -> AddPlaceResponse:
-    await places_service.add_place(place=place)
-    return AddPlaceResponse(message='ok')
+    response = await places_service.add_place(place=place)
+    return response
 
 
 @router.get(

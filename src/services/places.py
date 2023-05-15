@@ -1,6 +1,6 @@
 import asyncpg
 
-from api.routers.v1.models import AddPlace, GetPlace, GetPlaces
+from api.routers.v1.models import AddPlace, GetPlace, GetPlaces, AddPlaceResponse
 from src.dal.postgres.places import PlacesDB
 
 
@@ -22,8 +22,14 @@ class PlacesServices:
         )
         return GetPlaces(places=places)
 
-    async def add_place(self, place: AddPlace) -> None:
-        await self.places_db.insert(name=place.name)
+    async def add_place(self, place: AddPlace) -> AddPlaceResponse | None:
+        nearest_place = await self.places_db.get_nearest_place(latitude=place.lat, longitude=place.lng)
+
+        if nearest_place is None:
+            await self.places_db.insert(place)
+            return AddPlaceResponse(message='ok')
+
+        return AddPlaceResponse(message='such a filling already exists')
 
     async def get_place(self, place_id: int) -> GetPlace | None:
         place = await self.places_db.get(place_id=place_id)

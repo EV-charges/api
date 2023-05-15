@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS places (
     id SERIAL PRIMARY KEY,
-    location geography(POINT),
+    location geography(POINT) NOT NULL,
     name VARCHAR(100) NOT NULL,
     city VARCHAR(30),
     street VARCHAR(70)

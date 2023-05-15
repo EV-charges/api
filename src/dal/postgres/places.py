@@ -15,14 +15,18 @@ class PlacesDB:
 
     async def insert(
             self,
-            name: str
+            place
     ) -> None:
         await self.conn.execute(
             """
-            INSERT INTO places (name)
-            VALUES ($1)
+            INSERT INTO places (location, name, city, street)
+            VALUES (ST_Point($1, $2, 4326), $3, $4, $5)
             """,
-            name
+            place.lat,
+            place.lng,
+            place.name,
+            place.city,
+            place.street
         )
 
     async def get(self, place_id: int) -> asyncpg.Record:
@@ -31,5 +35,17 @@ class PlacesDB:
             SELECT * FROM places WHERE id = $1
             """,
             place_id
+        )
+        return place
+
+    async def get_nearest_place(self, latitude: float, longitude: float) -> asyncpg.Record:
+        place = await self.conn.fetchrow(
+            f"""
+            SELECT id, name
+            FROM places
+            WHERE ST_Distance(location, ST_POINT($1, $2)) <= 10
+            """,
+            latitude,
+            longitude
         )
         return place
