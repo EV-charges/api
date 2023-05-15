@@ -1,5 +1,7 @@
 import asyncpg
 
+from api.routers.v1.models import AddPlace
+
 
 class PlacesDB:
     def __init__(self, conn: asyncpg.Connection) -> None:
@@ -15,7 +17,7 @@ class PlacesDB:
 
     async def insert(
             self,
-            place
+            place: AddPlace
     ) -> None:
         await self.conn.execute(
             """
@@ -40,7 +42,7 @@ class PlacesDB:
 
     async def get_nearest_place(self, latitude: float, longitude: float) -> asyncpg.Record:
         place = await self.conn.fetchrow(
-            f"""
+            """
             SELECT id, name
             FROM places
             WHERE ST_Distance(location, ST_POINT($1, $2)) <= 10

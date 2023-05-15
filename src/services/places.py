@@ -1,6 +1,6 @@
 import asyncpg
 
-from api.routers.v1.models import AddPlace, GetPlace, GetPlaces, AddPlaceResponse
+from api.routers.v1.models import AddPlace, AddPlaceResponse, GetPlace, GetPlaces
 from src.dal.postgres.places import PlacesDB
 
 
