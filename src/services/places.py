@@ -1,6 +1,6 @@
 import asyncpg
 
-from api.routers.v1.models import AddPlace, AddPlaceResponse, GetPlace, GetPlaces
+from api.routers.v1.models import AddPlace, GetPlace, GetPlaces
 from src.dal.postgres.places import PlacesDB
 
 
@@ -22,14 +22,22 @@ class PlacesServices:
         )
         return GetPlaces(places=places)
 
-    async def add_place(self, place: AddPlace) -> AddPlaceResponse | None:
-        nearest_place = await self.places_db.get_nearest_place(latitude=place.lat, longitude=place.lng)
+    async def add_place(self, place: AddPlace) -> None:
+        nearest_place_data = await self.places_db.get_nearest_place(latitude=place.coordinates.lat,
+                                                                    longitude=place.coordinates.lng)
 
-        if nearest_place is None:
-            await self.places_db.insert(place)
-            return AddPlaceResponse(message='ok')
+        if not nearest_place_data:
+            await self.places_db.insert_place(place)
+            raise PlaceAddError
 
-        return AddPlaceResponse(message='such a filling already exists')
+        for nearest_place in nearest_place_data:
+            if nearest_place.get('source') == place.source:
+                raise PlaceExistError
+
+        place_id = nearest_place_data[0].get('place_id')
+        await self.places_db.insert_place_source(place, place_id)
+
+        raise SourceAddError
 
     async def get_place(self, place_id: int) -> GetPlace | None:
         place = await self.places_db.get(place_id=place_id)
@@ -39,3 +47,18 @@ class PlacesServices:
             id=place['id'],
             name=place['name'],
         )
+
+
+class PlaceExistError(Exception):
+    def __init__(self) -> None:
+        self.text = 'such a place already exists'
+
+
+class PlaceAddError(Exception):
+    def __init__(self) -> None:
+        self.text = 'place added'
+
+
+class SourceAddError(Exception):
+    def __init__(self) -> None:
+        self.text = 'source added'

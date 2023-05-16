@@ -1,12 +1,18 @@
 from pydantic import BaseModel
 
 
-class AddPlace(BaseModel):
+class Coordinates(BaseModel):
     lat: float
     lng: float
+
+
+class AddPlace(BaseModel):
+    inner_id: int
+    coordinates: Coordinates
     name: str
     city: str | None
     street: str | None
+    source: str
 
 
 class GetPlace(BaseModel):

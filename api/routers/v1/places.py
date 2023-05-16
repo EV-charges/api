@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, status
 
 from api.depends import get_places_service
 from api.routers.v1.models import AddPlace, AddPlaceResponse, GetPlace, GetPlaces
-from src.services.places import PlacesServices
+from src.services.places import PlaceAddError, PlaceExistError, PlacesServices, SourceAddError
 
 router = APIRouter(prefix='/api/v1', tags=['places'])
 
@@ -30,8 +30,10 @@ async def add_place(
     place: AddPlace,
     places_service: PlacesServices = Depends(get_places_service)
 ) -> AddPlaceResponse:
-    response = await places_service.add_place(place=place)
-    return response
+    try:
+        await places_service.add_place(place=place)
+    except (PlaceAddError, PlaceExistError, SourceAddError) as e:
+        return AddPlaceResponse(message=e.text)
 
 
 @router.get(
