@@ -1,5 +1,7 @@
 import asyncpg
 
+from api.routers.v1.models import AddPlace
+
 
 class PlacesDB:
     def __init__(self, conn: asyncpg.Connection) -> None:
@@ -13,16 +15,27 @@ class PlacesDB:
     ) -> list[asyncpg.Record]:
         pass
 
-    async def insert(
+    async def insert_place(
             self,
-            name: str
+            place: AddPlace
     ) -> None:
         await self.conn.execute(
             """
-            INSERT INTO places (name)
-            VALUES ($1)
+            WITH place_data AS (
+            INSERT INTO places (location, name, city, street)
+            VALUES (ST_Point($1, $2, 4326), $3, $4, $5)
+            RETURNING id
+            )
+            INSERT INTO places_sources (place_id, inner_id, source)
+            VALUES ((SELECT id FROM place_data), $6, $7)
             """,
-            name
+            place.coordinates.lat,
+            place.coordinates.lng,
+            place.name,
+            place.city,
+            place.street,
+            place.inner_id,
+            place.source
         )
 
     async def get(self, place_id: int) -> asyncpg.Record:
@@ -33,3 +46,31 @@ class PlacesDB:
             place_id
         )
         return place
+
+    async def get_nearest_place(self, latitude: float, longitude: float) -> list[asyncpg.Record] | None:
+        place = await self.conn.fetch(
+            """
+            SELECT place_id, source FROM places
+            JOIN places_sources
+            ON places.id = places_sources.place_id
+            WHERE ST_Distance(location, ST_POINT($1, $2)) <= 10
+            """,
+            latitude,
+            longitude
+        )
+        return place
+
+    async def insert_place_source(
+            self,
+            place: AddPlace,
+            place_id: int
+    ) -> None:
+        await self.conn.execute(
+            """
+            INSERT INTO places_sources (place_id, inner_id, source)
+            VALUES ($1, $2, $3)
+            """,
+            place_id,
+            place.inner_id,
+            place.source
+        )
