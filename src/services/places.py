@@ -1,3 +1,5 @@
+import json
+
 import asyncpg
 
 from api.routers.v1.models import AddPlace, GetPlace, GetPlaces
@@ -20,7 +22,22 @@ class PlacesServices:
             offset=offset,
             source=source
         )
-        return GetPlaces(places=places)
+        final_places = []
+
+        for place in places:
+            json_coordinates = json.loads(place['st_asgeojson'])['coordinates']
+            lat = json_coordinates[0]
+            lng = json_coordinates[1]
+            coordinates = {'lat': lat,
+                           'lng': lng}
+
+            final_places.append(GetPlace(id=place['id'],
+                                         name=place['name'],
+                                         coordinates=coordinates,
+                                         city=place['city'],
+                                         street=place['street']))
+
+        return GetPlaces(places=final_places)
 
     async def add_place(self, place: AddPlace) -> None:
         nearest_place_data = await self.places_db.get_nearest_place(latitude=place.coordinates.lat,
@@ -41,11 +58,19 @@ class PlacesServices:
 
     async def get_place(self, place_id: int) -> GetPlace | None:
         place = await self.places_db.get(place_id=place_id)
+        json_coordinates = json.loads(place['st_asgeojson'])['coordinates']
+        lat = json_coordinates[0]
+        lng = json_coordinates[1]
+        coordinates = {'lat': lat,
+                       'lng': lng}
         if not place:
             return
         return GetPlace(
             id=place['id'],
             name=place['name'],
+            coordinates=coordinates,
+            city=place['city'],
+            street=place['street']
         )
 
 
