@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+    ports:
+      - 8080:8080
+    volumes:
+      - ./.env:/api/.env
+    networks:
+      - new
+    depends_on:
+      pg:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  migrate:
+    image: migrate/migrate
+    networks:
+      - new
+    volumes:
+      - ./docker_migrations:/migrations
+    command: [ "-path", "/migrations", "-database",  "postgres://postgres:postgres@database:5432/postgres?sslmode=disable", "up" ]
+    depends_on:
+      pg:
+        condition: service_healthy
+    links:
+      - pg
+
+  pg:
+    image: postgis/postgis:14-3.3-alpine
+    networks:
+      new:
+        aliases:
+          - database
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+networks:
+    new:
