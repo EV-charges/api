@@ -13,15 +13,20 @@ class PlacesDB:
             offset: int,
             source: str | None = None
     ) -> list[asyncpg.Record]:
-        return await self.conn.fetch(
-            """
-            SELECT id, ST_AsGeoJson(location)::jsonb, name, city, street
-            FROM places
-            LIMIT $1 OFFSET $2
-            """,
-            limit,
-            offset
-        )
+        query = """
+            SELECT p.id, ST_AsGeoJson(location)::jsonb, name, city, street, ps.inner_id, ps.source
+            FROM places p
+            LEFT JOIN places_sources ps ON p.id = ps.place_id
+        """
+        parameters = [limit, offset]
+
+        if source is not None:
+            query += " WHERE ps.source = $3"
+            parameters.append(source)
+
+        query += " LIMIT $1 OFFSET $2;"
+
+        return await self.conn.fetch(query, *parameters)
 
     async def insert_place(
             self,
@@ -49,9 +54,10 @@ class PlacesDB:
     async def get(self, place_id: int) -> asyncpg.Record:
         place = await self.conn.fetchrow(
             """
-            SELECT id, ST_AsGeoJson(location)::jsonb, name, city, street
-            FROM places
-            WHERE id =$1
+            SELECT p.id, ST_AsGeoJson(location)::jsonb, name, city, street, ps.inner_id, ps.source
+            FROM places p
+            LEFT JOIN places_sources ps ON p.id = ps.place_id
+            WHERE p.id =$1
             """,
             place_id
         )

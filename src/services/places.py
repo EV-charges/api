@@ -35,7 +35,9 @@ class PlacesServices:
                                          name=place['name'],
                                          coordinates=coordinates,
                                          city=place['city'],
-                                         street=place['street']))
+                                         street=place['street'],
+                                         inner_id=place['inner_id'],
+                                         source=place['source']))
 
         return GetPlaces(places=final_places)
 
@@ -70,7 +72,9 @@ class PlacesServices:
             name=place['name'],
             coordinates=coordinates,
             city=place['city'],
-            street=place['street']
+            street=place['street'],
+            inner_id=place['inner_id'],
+            source=place['source']
         )
 
 
