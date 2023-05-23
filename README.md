@@ -37,3 +37,32 @@ poetry run ruff check .
 ```
 ./run
 ```
+## Запуск через Docker
+
+### Настройка переменных окружения
+В файле docker-compose.yml выставить переменные окружения в секции (PG_HOST менять не нужно):
+```
+POSTGRES_USER: postgres
+POSTGRES_PASSWORD: postgres
+POSTGRES_DB: postgres
+```
+Выставить эти же настройки в разделе command секции migrate(хост менять не нужно):
+```
+command: [ "-path", "/migrations", "-database",  "postgres://POSTGRES_USER:POSTGRES_PASSWORD@database:5432/POSTGRES_DB?sslmode=disable", "up" ]
+```
+В секции api выставить переменные окружения такие же как в секции pg
+```
+PG_USER: postgres
+PG_PASSWORD: postgres
+PG_DATABASE: postgres
+```
+### Сохранение данных между запусками контейнеров
+Что бы ваши данные сохранялись в БД после перезапуска контейнера в секцию pg нужно добавить:
+```
+.:/var/lib/postgresql/data
+```
+### Сборка и запуск контейнеров
+Для соборки и запуска контейнера выполните в командной строке:
+```commandline
+ docker-compose up --build -d
+```
