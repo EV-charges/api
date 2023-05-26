@@ -12,7 +12,16 @@ class AddPlace(BaseModel):
     name: str
     city: str | None
     street: str | None
+    # TODO: почему source None? ты же взял эту инфу откуда-то
     source: str | None
+
+
+# TODO: тут такая штука, у одного места может быть много source - поэтому надо расширить модель!
+
+
+class PlaceSourse(BaseModel):
+    inner_id: int
+    sourse: str
 
 
 class GetPlace(BaseModel):
@@ -22,7 +31,9 @@ class GetPlace(BaseModel):
     city: str | None
     street: str | None
     inner_id: int
-    source: str | None
+    # TODO: почему source None
+    # source: str | None
+    place_sourse: list[PlaceSourse]
 
 
 

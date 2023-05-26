@@ -9,6 +9,7 @@ router = APIRouter(prefix='/api/v1', tags=['places'])
 
 @router.get('/places')
 async def get_places(
+        # TODO: давай дефолтные limit = 20 offset = 0 поставим
         limit: int,
         offset: int,
         source: str | None = None,
@@ -33,7 +34,9 @@ async def add_place(
     try:
         await places_service.add_place(place=place)
     except (PlaceAddError, PlaceExistError, SourceAddError) as e:
+        # TODO: если произошла ошибка и ничего не добавилось, это не 201, это 409 и ошибка
         return AddPlaceResponse(message=e.text)
+        # raise HTTPException(status_code=409, detail=e.text)
 
 
 @router.get(

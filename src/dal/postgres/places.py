@@ -13,8 +13,9 @@ class PlacesDB:
             offset: int,
             source: str | None = None
     ) -> list[asyncpg.Record]:
+        # TODO: -> 'coordinates' as location
         query = """
-            SELECT p.id, ST_AsGeoJson(location)::jsonb, name, city, street, ps.inner_id, ps.source
+            SELECT p.id, ST_AsGeoJson(location)::jsonb -> 'coordinates' as coords, name, city, street, ps.inner_id, ps.source
             FROM places p
             LEFT JOIN places_sources ps ON p.id = ps.place_id
         """
@@ -64,6 +65,7 @@ class PlacesDB:
         return place
 
     async def get_nearest_place(self, latitude: float, longitude: float) -> list[asyncpg.Record] | None:
+        # TODO: 10 в settings надо вынести!
         place = await self.conn.fetch(
             """
             SELECT place_id, source FROM places

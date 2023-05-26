@@ -35,6 +35,7 @@ services:
       - pg
 
   pg:
+    # TODO: volumes
     image: postgis/postgis:14-3.3-alpine
     networks:
       api_network:

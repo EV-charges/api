@@ -24,4 +24,5 @@ RUN poetry config virtualenvs.create false && poetry install --only main
 
 COPY . .
 
+# TODO: uvicorn
 CMD ["python", "./run.py"]
