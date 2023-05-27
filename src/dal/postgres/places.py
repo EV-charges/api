@@ -59,7 +59,8 @@ class PlacesDB:
     async def get(self, place_id: int) -> asyncpg.Record:
         place = await self.conn.fetchrow(
             """
-            SELECT p.id, ST_AsGeoJson(location)::jsonb -> 'coordinates' as coordinates, name, city, street, ps.inner_id, ps.source
+            SELECT p.id, ST_AsGeoJson(location)::jsonb -> 'coordinates' as coordinates, name, city, street, ps.inner_id,
+            ps.source
             FROM places p
             LEFT JOIN places_sources ps ON p.id = ps.place_id
             WHERE p.id =$1
