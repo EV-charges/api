@@ -25,19 +25,20 @@ class PlacesServices:
         final_places = []
 
         for place in places:
-            json_coordinates = json.loads(place['st_asgeojson'])['coordinates']
+            json_coordinates = json.loads(place['coordinates'])
             lat = json_coordinates[0]
             lng = json_coordinates[1]
             coordinates = {'lat': lat,
                            'lng': lng}
 
-            final_places.append(GetPlace(id=place['id'],
-                                         name=place['name'],
-                                         coordinates=coordinates,
-                                         city=place['city'],
-                                         street=place['street'],
-                                         inner_id=place['inner_id'],
-                                         source=place['source']))
+            final_places.append(
+                GetPlace(
+                    id=place['id'],
+                    name=place['name'],
+                    coordinates=coordinates,
+                    city=place['city'],
+                    street=place['street'],
+                    source=place['sources']))
 
         return GetPlaces(places=final_places)
 
@@ -60,7 +61,7 @@ class PlacesServices:
 
     async def get_place(self, place_id: int) -> GetPlace | None:
         place = await self.places_db.get(place_id=place_id)
-        json_coordinates = json.loads(place['st_asgeojson'])['coordinates']
+        json_coordinates = json.loads(place['coordinates'])
         lat = json_coordinates[0]
         lng = json_coordinates[1]
         coordinates = {'lat': lat,

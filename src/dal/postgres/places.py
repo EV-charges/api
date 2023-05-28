@@ -14,9 +14,14 @@ class PlacesDB:
             source: str | None = None
     ) -> list[asyncpg.Record]:
         query = """
-            SELECT p.id, ST_AsGeoJson(location)::jsonb, name, city, street, ps.inner_id, ps.source
-            FROM places p
-            LEFT JOIN places_sources ps ON p.id = ps.place_id
+            SELECT p.id, ST_AsGeoJson(location)::jsonb -> 'coordinates' as coordinates, name, city, street, s.sources
+            FROM  places p
+            JOIN (
+               SELECT ps.place_id, array_agg(json_build_object('inner_id', ps.inner_id, 'source', ps.source)) AS sources
+               FROM places_sources ps
+               GROUP BY ps.place_id
+               ) s
+            on p.id = s.place_id
         """
         parameters = [limit, offset]
 
@@ -54,7 +59,8 @@ class PlacesDB:
     async def get(self, place_id: int) -> asyncpg.Record:
         place = await self.conn.fetchrow(
             """
-            SELECT p.id, ST_AsGeoJson(location)::jsonb, name, city, street, ps.inner_id, ps.source
+            SELECT p.id, ST_AsGeoJson(location)::jsonb -> 'coordinates' as coordinates, name, city, street, ps.inner_id,
+            ps.source
             FROM places p
             LEFT JOIN places_sources ps ON p.id = ps.place_id
             WHERE p.id =$1

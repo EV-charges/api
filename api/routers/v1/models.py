@@ -21,9 +21,8 @@ class GetPlace(BaseModel):
     coordinates: Coordinates
     city: str | None
     street: str | None
-    inner_id: int
-    source: str | None
-
+    inner_id: int | None
+    source: str | list
 
 
 class GetPlaces(BaseModel):
