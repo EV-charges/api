@@ -34,7 +34,7 @@ async def add_place(
         service_response = await places_service.add_place(place=place)
         return AddPlaceResponse(message=service_response)
     except PlaceExistError as e:
-        raise HTTPException(status_code=409, detail=e.text)
+        raise HTTPException(status_code=409, detail=e.text) from None
 
 
 @router.get(
