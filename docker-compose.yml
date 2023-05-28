@@ -36,6 +36,8 @@ services:
 
   pg:
     image: postgis/postgis:14-3.3-alpine
+    volumes:
+      - ./database:/var/lib/postgresql
     networks:
       api_network:
         aliases:

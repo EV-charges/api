@@ -12,7 +12,7 @@ class AddPlace(BaseModel):
     name: str
     city: str | None
     street: str | None
-    source: str | None
+    source: str
 
 
 class GetPlace(BaseModel):
@@ -23,7 +23,6 @@ class GetPlace(BaseModel):
     street: str | None
     inner_id: int | None
     source: str | list
-
 
 class GetPlaces(BaseModel):
     places: list[GetPlace]
