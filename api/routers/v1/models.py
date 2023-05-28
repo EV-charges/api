@@ -15,14 +15,19 @@ class AddPlace(BaseModel):
     source: str
 
 
+class PlaceSources(BaseModel):
+    inner_id: int
+    source: str
+
+
 class GetPlace(BaseModel):
     id: int  # noqa
     name: str
     coordinates: Coordinates
     city: str | None
     street: str | None
-    inner_id: int | None
-    source: str | list
+    sources: list[PlaceSources]
+
 
 class GetPlaces(BaseModel):
     places: list[GetPlace]

@@ -6,16 +6,17 @@
 
 ```
 git clone https://github.com/EV-charges/api.git
+cd api
 poetry install
 ```
 ### Настройка
 Создайте файл .env и добавьте туда следующие настройки:
 ```
-PG_HOST = ХОСТ
-PG_PORT = ПОРТ_POSTGERSQL
-PG_USER = ИМЯ_ПОЛЬЗОВАТЕЛЯ_POSTGERSQL
-PG_PASSWORD = ПАРОЛЬ_POSTGERSQL
-PG_DATABASE = НАЗВАНИЕ_БАЗЫ_ДАННЫХ
+PG_HOST = хост postgersql
+PG_PORT = порт postgersql
+PG_USER = имя пользователя postgersql
+PG_PASSWORD = пароль для postgersql
+PG_DATABASE = название базы postgersql
 ```
 
 ### Применение миграций
@@ -42,9 +43,9 @@ poetry run ruff check .
 ### Настройка переменных окружения
 В файле docker-compose.yml выставить переменные окружения в секции (PG_HOST менять не нужно):
 ```
-POSTGRES_USER: postgres
-POSTGRES_PASSWORD: postgres
-POSTGRES_DB: postgres
+POSTGRES_USER: ev-chargers
+POSTGRES_PASSWORD: ev-chargers  # change on production
+POSTGRES_DB: ev-chargers
 ```
 Выставить эти же настройки в разделе command секции migrate(хост менять не нужно):
 ```
@@ -52,14 +53,9 @@ command: [ "-path", "/migrations", "-database",  "postgres://POSTGRES_USER:POSTG
 ```
 В секции api выставить переменные окружения такие же как в секции pg
 ```
-PG_USER: postgres
-PG_PASSWORD: postgres
-PG_DATABASE: postgres
-```
-### Сохранение данных между запусками контейнеров
-Что бы ваши данные сохранялись в БД после перезапуска контейнера в секцию pg нужно добавить:
-```
-.:/var/lib/postgresql/data
+PG_USER: ev-chargers
+PG_PASSWORD: ev-chargers
+PG_DATABASE: ev-chargers
 ```
 ### Сборка и запуск контейнеров
 Для соборки и запуска контейнера выполните в командной строке:

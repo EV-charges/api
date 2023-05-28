@@ -2,7 +2,7 @@ import json
 
 import asyncpg
 
-from api.routers.v1.models import AddPlace, GetPlace, GetPlaces
+from api.routers.v1.models import AddPlace, GetPlace, GetPlaces, PlaceSources
 from src.dal.postgres.places import PlacesDB
 
 
@@ -28,9 +28,11 @@ class PlacesServices:
             json_coordinates = json.loads(place['coordinates'])
             lat = json_coordinates[0]
             lng = json_coordinates[1]
-            coordinates = {'lat': lat,
-                           'lng': lng}
-
+            coordinates = {
+                'lat': lat,
+                'lng': lng
+            }
+            sources = [PlaceSources.parse_raw(s) for s in place['sources']]
             final_places.append(
                 GetPlace(
                     id=place['id'],
@@ -38,7 +40,9 @@ class PlacesServices:
                     coordinates=coordinates,
                     city=place['city'],
                     street=place['street'],
-                    source=place['sources']))
+                    sources=sources
+                )
+            )
 
         return GetPlaces(places=final_places)
 
@@ -61,21 +65,25 @@ class PlacesServices:
 
     async def get_place(self, place_id: int) -> GetPlace | None:
         place = await self.places_db.get(place_id=place_id)
+        if not place:
+            return
+
         json_coordinates = json.loads(place['coordinates'])
         lat = json_coordinates[0]
         lng = json_coordinates[1]
-        coordinates = {'lat': lat,
-                       'lng': lng}
-        if not place:
-            return
+        coordinates = {
+            'lat': lat,
+            'lng': lng
+        }
+
+        sources = [PlaceSources.parse_raw(s) for s in place['sources']]
         return GetPlace(
             id=place['id'],
             name=place['name'],
             coordinates=coordinates,
             city=place['city'],
             street=place['street'],
-            inner_id=place['inner_id'],
-            source=place['source']
+            sources=sources
         )
 
 

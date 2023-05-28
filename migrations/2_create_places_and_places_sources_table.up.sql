@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS places (
     location geography(POINT) NOT NULL,
     name VARCHAR(100) NOT NULL,
     city VARCHAR(30),
-    street VARCHAR(70)
+    street VARCHAR(70),
+    created_at TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS places_sources (
@@ -11,5 +12,6 @@ CREATE TABLE IF NOT EXISTS places_sources (
     place_id INTEGER NOT NULL,
     inner_id INTEGER NOT NULL,
     source VARCHAR(30) NOT NULL,
-    FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE CASCADE
+    FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP
 );
