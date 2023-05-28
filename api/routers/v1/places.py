@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from api.depends import get_places_service
 from api.routers.v1.models import AddPlace, AddPlaceResponse, GetPlace, GetPlaces
@@ -9,8 +9,8 @@ router = APIRouter(prefix='/api/v1', tags=['places'])
 
 @router.get('/places')
 async def get_places(
-        limit: int = 20,
-        offset: int = 0,
+        limit: int = Query(20),
+        offset: int = Query(0),
         source: str | None = None,
         places_service: PlacesServices = Depends(get_places_service)
 ) -> GetPlaces:

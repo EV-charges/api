@@ -5,16 +5,15 @@ services:
     build:
       context: .
     ports:
-      - 8080:8080
+      - "8080:8080"
+    networks:
+      - api_network
     environment:
       PG_HOST: pg
       PG_PORT: 5432
-      PG_USER: postgres
-      PG_PASSWORD: postgres
-      PG_DATABASE: postgres
-
-    networks:
-      - api_network
+      PG_USER: ev-chargers
+      PG_PASSWORD: ev-chargers  # change on production
+      PG_DATABASE: ev-chargers
     depends_on:
       pg:
         condition: service_started
@@ -23,35 +22,40 @@ services:
 
   migrate:
     image: migrate/migrate
+    ports:
+      - "8080:8080"
     networks:
       - api_network
     volumes:
       - ./migrations:/migrations
-    command: [ "-path", "/migrations", "-database",  "postgres://postgres:postgres@database:5432/postgres?sslmode=disable", "up" ]
+    command: [
+      "-path",
+      "/migrations",
+      "-database",
+      "postgres://ev-chargers:ev-chargers@pg:5432/ev-chargers?sslmode=disable",
+      "up"
+    ]
     depends_on:
       pg:
         condition: service_healthy
-    links:
-      - pg
 
   pg:
     image: postgis/postgis:14-3.3-alpine
+    ports:
+      - "5433:5432"
+    networks:
+      - api_network
     volumes:
       - ./database:/var/lib/postgresql
-    networks:
-      api_network:
-        aliases:
-          - database
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_USER: ev-chargers
+      POSTGRES_PASSWORD: ev-chargers  # change on production
+      POSTGRES_DB: ev-chargers
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U ev-chargers" ]
       interval: 5s
       timeout: 5s
       retries: 3
-
 
 networks:
     api_network:
