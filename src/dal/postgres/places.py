@@ -1,6 +1,7 @@
 import asyncpg
 
 from api.routers.v1.models import AddPlace
+from settings import app_settings
 
 
 class PlacesDB:
@@ -63,16 +64,22 @@ class PlacesDB:
         )
         return place
 
-    async def get_nearest_place(self, latitude: float, longitude: float) -> list[asyncpg.Record] | None:
-        place = await self.conn.fetch(
+    async def get_nearest_place(self, latitude: float, longitude: float) -> asyncpg.Record | None:
+        place = await self.conn.fetchrow(
             """
-            SELECT place_id, source FROM places
-            JOIN places_sources
-            ON places.id = places_sources.place_id
-            WHERE ST_Distance(location, ST_POINT($1, $2)) <= 10
+            SELECT id, (
+                SELECT STRING_AGG(ps.source, ', ')
+                FROM places_sources ps
+                WHERE ps.place_id = places.id
+            ) AS sources, ST_Distance(places.location, ST_POINT($1, $2)) AS distance
+            FROM places
+            WHERE ST_Distance(places.location, ST_POINT($1, $2)) <= $3
+            ORDER BY distance
+            LIMIT 1;
             """,
             latitude,
-            longitude
+            longitude,
+            app_settings.DISTANCE_LIMIT
         )
         return place
 

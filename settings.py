@@ -33,6 +33,8 @@ class AppSettings(BaseSettings):
     TITLE: str = 'EV-chargers API'
     VERSION: str = '0.1.0'
 
+    DISTANCE_LIMIT: int = 10
+
     class Config:
         case_sensitive = False
 

@@ -41,22 +41,22 @@ class PlacesServices:
 
         return GetPlaces(places=final_places)
 
-    async def add_place(self, place: AddPlace) -> None:
-        nearest_place_data = await self.places_db.get_nearest_place(latitude=place.coordinates.lat,
-                                                                    longitude=place.coordinates.lng)
+    async def add_place(self, place: AddPlace) -> str:
+        nearest_place_data = await self.places_db.get_nearest_place(
+            latitude=place.coordinates.lat,
+            longitude=place.coordinates.lng
+        )
 
         if not nearest_place_data:
             await self.places_db.insert_place(place)
-            raise PlaceAddError
+            return "place add"
 
-        for nearest_place in nearest_place_data:
-            if nearest_place.get('source') == place.source:
-                raise PlaceExistError
+        if place.source in nearest_place_data.get('sources'):
+            raise PlaceExistError
 
-        place_id = nearest_place_data[0].get('place_id')
+        place_id = nearest_place_data.get('id')
         await self.places_db.insert_place_source(place, place_id)
-
-        raise SourceAddError
+        return "place source add"
 
     async def get_place(self, place_id: int) -> GetPlace | None:
         place = await self.places_db.get(place_id=place_id)
@@ -81,13 +81,3 @@ class PlacesServices:
 class PlaceExistError(Exception):
     def __init__(self) -> None:
         self.text = 'such a place already exists'
-
-
-class PlaceAddError(Exception):
-    def __init__(self) -> None:
-        self.text = 'place added'
-
-
-class SourceAddError(Exception):
-    def __init__(self) -> None:
-        self.text = 'source added'
