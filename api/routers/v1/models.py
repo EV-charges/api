@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel
 
 
@@ -12,6 +14,15 @@ class AddPlace(BaseModel):
     name: str
     city: str | None
     street: str | None
+    source: str
+
+
+class AddComment(BaseModel):
+    place_id: int
+    comment_id: int
+    author: str
+    text: str
+    publication_date: datetime.datetime
     source: str
 
 

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from api.depends import get_places_service
-from api.routers.v1.models import AddPlace, AddPlaceResponse, GetPlace, GetPlaces
-from src.services.places import PlaceExistError, PlacesServices
+from api.routers.v1.models import AddComment, AddPlace, AddPlaceResponse, GetPlace, GetPlaces
+from src.services.places import CommentExistError, PlaceExistError, PlacesServices
 
 router = APIRouter(prefix='/api/v1', tags=['places'])
 
@@ -49,3 +49,18 @@ async def get_place(
     if not place:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='place not found')
     return place
+
+
+@router.post(
+    '/comments',
+    status_code=status.HTTP_201_CREATED
+)
+async def add_comment(
+    comment: AddComment,
+    places_service: PlacesServices = Depends(get_places_service)
+) -> AddPlaceResponse:
+    try:
+        service_response = await places_service.add_comment(comment=comment)
+        return AddPlaceResponse(message=service_response)
+    except CommentExistError as e:
+        raise HTTPException(status_code=409, detail=e.text) from None

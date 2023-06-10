@@ -2,7 +2,7 @@ import json
 
 import asyncpg
 
-from api.routers.v1.models import AddPlace, GetPlace, GetPlaces, PlaceSources
+from api.routers.v1.models import AddComment, AddPlace, GetPlace, GetPlaces, PlaceSources
 from src.dal.postgres.places import PlacesDB
 
 
@@ -46,7 +46,10 @@ class PlacesServices:
 
         return GetPlaces(places=final_places)
 
-    async def add_place(self, place: AddPlace) -> str:
+    async def add_place(
+            self,
+            place: AddPlace
+    ) -> str:
         nearest_place_data = await self.places_db.get_nearest_place(
             latitude=place.coordinates.lat,
             longitude=place.coordinates.lng
@@ -86,7 +89,18 @@ class PlacesServices:
             sources=sources
         )
 
+    async def add_comment(self, comment: AddComment) -> str:
+        response = await self.places_db.insert_comment(comment)
+        if response:
+            return "place comment add"
+        raise CommentExistError
+
 
 class PlaceExistError(Exception):
     def __init__(self) -> None:
         self.text = 'such a place already exists'
+
+
+class CommentExistError(Exception):
+    def __init__(self) -> None:
+        self.text = 'Place not exists or comment already added'
