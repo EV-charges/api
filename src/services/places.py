@@ -3,7 +3,7 @@ import json
 import asyncpg
 
 from api.routers.v1.models import AddComment, AddPlace, GetPlace, GetPlaces, PlaceSources
-from src.dal.postgres.places import PlacesDB, CommentsDB
+from src.dal.postgres.places import CommentsDB, PlacesDB
 
 
 class PlacesServices:

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
-from api.depends import get_places_service, get_comments_service
+from api.depends import get_comments_service, get_places_service
 from api.routers.v1.models import AddComment, AddPlace, AddPlaceResponse, GetPlace, GetPlaces
 from src.services.places import CommentExistError, CommentsServices, PlaceExistError, PlacesServices
 
