@@ -130,26 +130,31 @@ class PlacesDB:
             place.source
         )
 
+
+class CommentsDB:
+    def __init__(self, conn: asyncpg.Connection) -> None:
+        self.conn = conn
+
     async def insert_comment(
         self,
         comment: AddComment
     ) -> int | None:
         query = await self.conn.fetchval(
             """
-            INSERT INTO places_comments (
+            INSERT INTO comments (
                 place_id,
                 comment_id,
                 author,
                 text,
                 publication_date,
-                comment_source
+                source
             )
             SELECT place_id, $1, $2, $3, $4, $6
             FROM places_sources
             WHERE inner_id = $5 AND source = $6
             AND NOT EXISTS (
                 SELECT 1
-                FROM places_comments
+                FROM comments
                 WHERE comment_id = $1
                 AND source = $6
             )

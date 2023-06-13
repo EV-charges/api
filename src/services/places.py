@@ -3,7 +3,7 @@ import json
 import asyncpg
 
 from api.routers.v1.models import AddComment, AddPlace, GetPlace, GetPlaces, PlaceSources
-from src.dal.postgres.places import PlacesDB
+from src.dal.postgres.places import PlacesDB, CommentsDB
 
 
 class PlacesServices:
@@ -89,8 +89,14 @@ class PlacesServices:
             sources=sources
         )
 
+
+class CommentsServices:
+    def __init__(self, conn: asyncpg.Connection) -> None:
+        self.conn = conn
+        self.comments_db = CommentsDB(conn=conn)
+
     async def add_comment(self, comment: AddComment) -> str:
-        response = await self.places_db.insert_comment(comment)
+        response = await self.comments_db.insert_comment(comment)
         if response:
             return "place comment add"
         raise CommentExistError
