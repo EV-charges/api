@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS comments (
+id serial PRIMARY KEY,
+place_id INT NOT NULL,
+comment_id INT NOT NULL,
+author VARCHAR(150),
+text TEXT,
+publication_date TIMESTAMP,
+source VARCHAR(30) NOT NULL,
+created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
