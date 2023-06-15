@@ -1,8 +1,9 @@
 import asyncpg
 
-from api.routers.v1.models import AddComment, PlaceSources
+from api.routers.v1.models import AddComment
 from src.dal.postgres.comments import CommentsDB
 from src.dal.postgres.places import PlacesDB
+from src.services.places import PlaceExistError
 
 
 class CommentsServices:
@@ -15,13 +16,21 @@ class CommentsServices:
             self,
             comment: AddComment,
     ) -> str:
-        place_source = PlaceSources(
+        place_id = await self.places_db.is_place_exist(
             inner_id=comment.place_id,
             source=comment.source
         )
-        place_id = await self.places_db.place_is_exist(place_source)
+
         if not place_id:
-            return "Place doesn't exist"
+            raise PlaceExistError
+
+        is_comment_exist = await self.comments_db.is_comment_exist(
+            comment_id=comment.comment_id,
+            source=comment.source
+        )
+
+        if is_comment_exist:
+            raise CommentExistError
 
         response = await self.comments_db.insert_comment(
             place_id=place_id,
@@ -29,7 +38,7 @@ class CommentsServices:
         )
 
         if not response:
-            raise CommentExistError
+            return "place comment doesn't add"
         return "place comment add"
 
 

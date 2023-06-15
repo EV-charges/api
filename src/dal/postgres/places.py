@@ -1,6 +1,6 @@
 import asyncpg
 
-from api.routers.v1.models import AddPlace, PlaceSources
+from api.routers.v1.models import AddPlace
 from settings import app_settings
 
 
@@ -130,16 +130,17 @@ class PlacesDB:
             place.source
         )
 
-    async def place_is_exist(
+    async def is_place_exist(
             self,
-            place_sources: PlaceSources
+            inner_id: int,
+            source: str
     ) -> int | None:
         return await self.conn.fetchval(
             """
                 SELECT place_id
-                from places_sources
-                where inner_id = $1 and source = $2
+                FROM places_sources
+                WHERE inner_id = $1 and source = $2
             """,
-            place_sources.inner_id,
-            place_sources.source
+            inner_id,
+            source
         )
