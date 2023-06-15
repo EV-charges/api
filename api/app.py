@@ -2,6 +2,7 @@ import asyncpg
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from api.routers.v1.comments import router as comments_router_v1
 from api.routers.v1.places import router as places_router_v1
 from settings import PostgresSettings, app_settings
 
@@ -38,5 +39,6 @@ def create_app() -> FastAPI:
         await app.state.pool.close()
 
     app.include_router(places_router_v1)
+    app.include_router(comments_router_v1)
 
     return app

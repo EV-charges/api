@@ -5,7 +5,7 @@ comment_id INT NOT NULL,
 author VARCHAR(150),
 text TEXT,
 publication_date TIMESTAMP,
-source VARCHAR(30) NOT NULL,
+source TEXT NOT NULL,
 FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE CASCADE,
 created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

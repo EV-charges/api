@@ -2,8 +2,8 @@ import json
 
 import asyncpg
 
-from api.routers.v1.models import AddComment, AddPlace, GetPlace, GetPlaces, PlaceSources
-from src.dal.postgres.places import CommentsDB, PlacesDB
+from api.routers.v1.models import AddPlace, GetPlace, GetPlaces, PlaceSources
+from src.dal.postgres.places import PlacesDB
 
 
 class PlacesServices:
@@ -90,23 +90,7 @@ class PlacesServices:
         )
 
 
-class CommentsServices:
-    def __init__(self, conn: asyncpg.Connection) -> None:
-        self.conn = conn
-        self.comments_db = CommentsDB(conn=conn)
-
-    async def add_comment(self, comment: AddComment) -> str:
-        response = await self.comments_db.insert_comment(comment)
-        if response:
-            return "place comment add"
-        raise CommentExistError
-
-
 class PlaceExistError(Exception):
     def __init__(self) -> None:
         self.text = 'such a place already exists'
 
-
-class CommentExistError(Exception):
-    def __init__(self) -> None:
-        self.text = 'Place not exists or comment already added'

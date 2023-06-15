@@ -1,6 +1,6 @@
 import asyncpg
 
-from api.routers.v1.models import AddComment, AddPlace
+from api.routers.v1.models import AddPlace, PlaceSources
 from settings import app_settings
 
 
@@ -130,41 +130,16 @@ class PlacesDB:
             place.source
         )
 
-
-class CommentsDB:
-    def __init__(self, conn: asyncpg.Connection) -> None:
-        self.conn = conn
-
-    async def insert_comment(
-        self,
-        comment: AddComment
+    async def place_is_exist(
+            self,
+            place_sources: PlaceSources
     ) -> int | None:
-        query = await self.conn.fetchval(
+        return await self.conn.fetchval(
             """
-            INSERT INTO comments (
-                place_id,
-                comment_id,
-                author,
-                text,
-                publication_date,
-                source
-            )
-            SELECT place_id, $1, $2, $3, $4, $6
-            FROM places_sources
-            WHERE inner_id = $5 AND source = $6
-            AND NOT EXISTS (
-                SELECT 1
-                FROM comments
-                WHERE comment_id = $1
-                AND source = $6
-            )
-            RETURNING id
+                SELECT place_id
+                from places_sources
+                where inner_id = $1 and source = $2
             """,
-            comment.comment_id,
-            comment.author,
-            comment.text,
-            comment.publication_date,
-            comment.place_id,
-            comment.source
+            place_sources.inner_id,
+            place_sources.source
         )
-        return query
