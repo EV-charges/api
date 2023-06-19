@@ -46,7 +46,10 @@ class PlacesServices:
 
         return GetPlaces(places=final_places)
 
-    async def add_place(self, place: AddPlace) -> str:
+    async def add_place(
+            self,
+            place: AddPlace
+    ) -> str:
         nearest_place_data = await self.places_db.get_nearest_place(
             latitude=place.coordinates.lat,
             longitude=place.coordinates.lng
@@ -90,3 +93,4 @@ class PlacesServices:
 class PlaceExistError(Exception):
     def __init__(self) -> None:
         self.text = 'such a place already exists'
+

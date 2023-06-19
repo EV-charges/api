@@ -129,3 +129,18 @@ class PlacesDB:
             place.inner_id,
             place.source
         )
+
+    async def is_place_exist(
+            self,
+            inner_id: int,
+            source: str
+    ) -> int | None:
+        return await self.conn.fetchval(
+            """
+                SELECT place_id
+                FROM places_sources
+                WHERE inner_id = $1 and source = $2
+            """,
+            inner_id,
+            source
+        )
