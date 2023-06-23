@@ -16,29 +16,29 @@ class CommentsServices:
             self,
             comment: AddComment,
     ) -> str:
-        place_id = await self.places_db.is_place_exist(
+        place_id = await self.places_db.get_place_id(
             inner_id=comment.place_id,
             source=comment.source
         )
 
         if not place_id:
-            raise PlaceExistError
+            raise PlaceExistError()
 
+        # TODO: можно будет избавится
         is_comment_exist = await self.comments_db.is_comment_exist(
             comment_id=comment.comment_id,
             source=comment.source
         )
 
         if is_comment_exist:
-            raise CommentExistError
+            raise CommentExistError()
 
-        response = await self.comments_db.insert_comment(
+        await self.comments_db.insert_comment(
             place_id=place_id,
             comment=comment,
         )
+        # CommentExistError()
 
-        if not response:
-            return "place comment doesn't add"
         return "place comment add"
 
 

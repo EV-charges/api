@@ -130,7 +130,7 @@ class PlacesDB:
             place.source
         )
 
-    async def is_place_exist(
+    async def get_place_id(
             self,
             inner_id: int,
             source: str
