@@ -94,3 +94,7 @@ class PlaceExistError(Exception):
     def __init__(self) -> None:
         self.text = 'such a place already exists'
 
+
+class PlaceNotExistError(Exception):
+    def __init__(self) -> None:
+        self.text = 'Place not exists'

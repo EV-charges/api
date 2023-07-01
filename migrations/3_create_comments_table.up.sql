@@ -8,8 +8,4 @@ CREATE TABLE IF NOT EXISTS comments (
     source TEXT NOT NULL,
     FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-
-
 );
-
--- TODO: CONSTRAINT comment_id_source_unique UNIQUE (comment_id, source) ALTER TABLE!!!!

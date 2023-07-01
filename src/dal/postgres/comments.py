@@ -1,4 +1,5 @@
 import asyncpg
+from asyncpg import UniqueViolationError
 
 from api.routers.v1.models import AddComment
 
@@ -6,23 +7,6 @@ from api.routers.v1.models import AddComment
 class CommentsDB:
     def __init__(self, conn: asyncpg.Connection) -> None:
         self.conn = conn
-
-    # TODO is_comment_existS
-    async def is_comment_exist(
-        self,
-        comment_id: int,
-        source: str
-    ) -> bool:
-        comments = await self.conn.fetchval(
-            """
-                SELECT comment_id
-                FROM comments
-                WHERE comment_id = $1 and source = $2
-            """,
-            comment_id,
-            source
-        )
-        return bool(comments)
 
     async def insert_comment(
         self,
@@ -50,6 +34,5 @@ class CommentsDB:
                 comment.publication_date,
                 comment.source
             )
-        except Exception: # TODO: посмотреть что за ошибка есть один и те же comment_id и source
-
-            return
+        except UniqueViolationError:
+            return None
